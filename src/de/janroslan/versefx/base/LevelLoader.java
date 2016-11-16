@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.janroslan.versefx.base;
 
-import de.janroslan.versefx.base.Level;
-import de.janroslan.versefx.physics.Collidable;
-import de.janroslan.versefx.base.ObjectBatch;
 import javafx.scene.Group;
-import org.dyn4j.dynamics.World;
 
 /**
- * Singleton LevelLoader
+ * Singleton LevelLoader, der Level laden kann und diese verwaltet
  *
  * @author Jackjan
  */
@@ -20,18 +11,27 @@ public class LevelLoader {
     
     private static LevelLoader obj;
     
+    // Geladenes Level
     private Level currentLvl;
+    
+    // JavaFX-Szenengraph
     private Group group;
+    
+    // Derzeitiger ObjektSammler des geladenen Levels
     private ObjectBatch currentBatch;
-    private World world;
+    
     
     private boolean isTicking;
     
+    // Automatische update-Routine pro Frame
     private boolean autoUpdate;
+    
+    
+    // Automatisches Kollionssystem pro Frame
     private boolean colCheckPerFrame;
 
     /**
-     *
+     * Gibt die LevelLoader Singleton-Instanz zurück
      * @return
      */
     public static LevelLoader getInstance() {
@@ -39,36 +39,37 @@ public class LevelLoader {
     }
 
     /**
-     * Generating a LevelLoader with the specified root
+     * Erstellt einen neuen LevelLoader mit der angegebenen Java-Szenengraph-Wurzel
      *
      * @param root
      * @return
      */
     public static LevelLoader getInstance(Group root) {
-        return obj = new LevelLoader(root, null);
+        return obj = new LevelLoader(root);
     }
     
     /**
-     * Generating a LevelLoader with the specified root
-     *
-     * @param root
-     * @param world
-     * @return
+     * Erstellt ein neue LevelLoader-Instance
+     * @param root 
      */
-    public static LevelLoader getInstance(Group root, World world) {
-        return obj = new LevelLoader(root,world);
-    }
-    
-    private LevelLoader(Group root, World world) {
+    private LevelLoader(Group root) {
         this.group = root;
-        this.world = world;
     }
     
+    
+    /**
+     * TODO: Lädt ein neues Level im XML-Format
+     * @param levelRes 
+     */
     public void loadLevel(String levelRes) {
         stopTicking();
         
     }
     
+    /**
+     * Lädt ein neues Level
+     * @param lvl 
+     */
     public void loadLevel(Level lvl) {
         stopTicking();
         autoUpdate = false;
@@ -79,32 +80,38 @@ public class LevelLoader {
     }
 
     /**
-     *
+     * Lädt ein neues Level
      * @param lvl
-     * @param autoUpdate
-     * @param colCheckPerFrame
+     * @param autoUpdate  - Aktiviert/Deaktiviert das automatische Aufrufen der Update-Methode des Levels
+     * @param colCheckPerFrame - Aktiviert/Deaktivert das automatische Kollisionssystem pro Frame
      */
     public void loadLevel(Level lvl, boolean autoUpdate, boolean colCheckPerFrame) {
         stopTicking();
         this.autoUpdate = autoUpdate;
         currentLvl = lvl;
-        currentBatch = lvl.initLevel(group, world);
+        currentBatch = lvl.initLevel(group);
         this.colCheckPerFrame = colCheckPerFrame;
         
         startTicking();
     }
     
+    
+    /**
+     * Frame-Update-Routine
+     * @param deltaT 
+     */
     public final void tick(float deltaT) {
         if (isTicking) {
             
-            // Collision check
+            // Standard Kollisionssystem
             if (colCheckPerFrame) {
                 currentBatch.getCollisionDict().forEach((k, v) -> {
                     v.forEach((object, targets) -> {
                         for (String s : targets) {
-                            currentBatch.getCollisionDict().get(s).forEach((a, b) -> {
-                                if (object.isIntersecting(a)) {
-                                    object.intersects(a);
+                            
+                            currentBatch.getCollisionDict().get(s).forEach((target, b) -> {
+                                if (object.isIntersecting(target)) {
+                                    object.intersects(target);
                                 }
                             });
                         }
@@ -120,10 +127,14 @@ public class LevelLoader {
         
     }
     
+    /**
+     * Startet die update-Routine
+     */
     public void startTicking() {
         isTicking = true;
     }
     
+    // Stoppt die Update-Routine
     public void stopTicking() {
         isTicking = false;
     }

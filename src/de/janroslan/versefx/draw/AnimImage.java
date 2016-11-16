@@ -1,38 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.janroslan.versefx.draw;
 
-import de.janroslan.versefx.draw.AnimationState;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
- *
+ * Ein animierbares Bild, welches auf der Klasse DrawImage aufbaut.
  * @author jackjan
  */
 public class AnimImage extends DrawImage {
 
+    // Gewünschte Zeit für einen Animationszyklus
     private int animTime;
 
+    // Zeit seit dem letzten Bildwechsel der Animation
     private double elapsed;
 
+    // Animationsstatus
     private AnimationState animState;
 
     int pointer;
 
+    // Anzahl der Zeilen und Spalten der Einzelbilder innerhalb eines Bildes
     private int columns;
     private int rows;
 
+    // Maße eines Einzelbildes innerhalb der Textur
     private int subX;
     private int subY;
 
     /**
-     * Constructor for images that should stay in their aspect ration but can be
-     * edited in their size by a size ratio
+     * Konstruktor für Bilder, die in ihrem Seitenverhätlnis beibehalten werden sollen
      *
      * @param tag
      * @param startX
@@ -49,7 +47,7 @@ public class AnimImage extends DrawImage {
     }
 
     /**
-     * Constructor for quadratic images
+     * Konstruktor für quadratische Bilder
      *
      * @param tag
      * @param startX
@@ -65,7 +63,7 @@ public class AnimImage extends DrawImage {
     }
 
     /**
-     * Primary constructor
+     * Primärkonstruktor
      *
      * @param tag
      * @param startX
@@ -94,11 +92,14 @@ public class AnimImage extends DrawImage {
         getBounds().setHeight(subY * getScaleY());
 
         getImageView().setViewport(new Rectangle2D(0, 0, subX, subY));
+        
+        setX(startX);
+        setY(startY);
     }
 
     /**
-     * Sets the animation speed for a complete animation cycle to the given time
-     * in milliseconds The default is one second for a cycle
+     * Setzt die Animationsgeschwindigkeit für einen kompletten Zyklus auf die gegebene Zeit in Millisekunden.
+     * Standard ist 1 Sekunde.
      *
      * @param time
      */
@@ -106,22 +107,33 @@ public class AnimImage extends DrawImage {
         animTime = time;
     }
 
+    
+    /**
+     * Startet die Animation
+     */
     public void startAnim() {
         animState = AnimationState.RUNNING;
 
     }
 
+    
+    /**
+     * Pausiert die Animation
+     */
     public void pauseAnim() {
         animState = AnimationState.PAUSED;
     }
 
+    
+    /**
+     * Stoppt die Animation
+     */
     public void stopAnim() {
         animState = AnimationState.STOPPED;
     }
 
     /**
-     * Changes the view to the given frame. Frames are counted from left to
-     * right & top to bottom
+     * Zeigt das animierte Bild in dem gegebenen Frame und pausiert die Animation.
      *
      * @param frame
      */
@@ -136,22 +148,33 @@ public class AnimImage extends DrawImage {
 
     }
 
+    
+    /**
+     * Frame-update.Routine
+     * @param deltaT 
+     */
     @Override
     protected final void update(float deltaT) {
         if (animState == AnimationState.RUNNING && columns > 1) {
 
             elapsed += deltaT;
+            
+            // Erlaubte Zeit für einen Frame der Animation
             double timePerFrame = animTime / (columns * rows);
 
+            // Frame-pointer
             pointer = (int) (elapsed / timePerFrame);
             int posX = pointer % columns;
             int posY = pointer / columns;
 
+            // Ermittlung des nächsten Frames
             if (pointer > columns * rows - 1) {
                 pointer = 0;
                 elapsed = 0;
             }
             
+            
+            // Setzen des Viewports auf den korrekten Ausschnitt
             getImageView().setViewport(new Rectangle2D(posX * subX, posY * subY, subX, subY));
 
         }
@@ -159,6 +182,10 @@ public class AnimImage extends DrawImage {
         refresh(deltaT);
     }
 
+    /**
+     * LWird pro Frame aufgerufen und ermöglicht Kindklassen das Hinzufügen einer eigenen Frame-update-routine ohne die Animationslogik zu überschreiben
+     * @param deltaT 
+     */
     protected void refresh(float deltaT) {
 
     }

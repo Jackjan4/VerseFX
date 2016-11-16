@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.janroslan.versefx.draw;
 
 import de.janroslan.versefx.base.BasicNode;
@@ -10,16 +5,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
- * A 2D object based on JavaFX-ImageView instead of being an actual 3D Mesh. Has
- * better performance, lacks however 3D features Can be animated by a tile based
- * animation
+ * Ein 2D Bild, welches mithilfe des JavaFX-ImageView gezeichnet wird
  *
  * @author jackjan
  */
 public class DrawImage extends BasicNode {
 
     /**
-     * Primary constructor -
+     * Primärkonstruktor
      *
      * @param tag
      * @param startX
@@ -61,10 +54,20 @@ public class DrawImage extends BasicNode {
 
     }
 
+    
+    /**
+     * Gibt das angezeigt Bild zurück
+     * @return 
+     */
     public final ImageView getImageView() {
         return (ImageView) getNode();
     }
 
+    
+    /**
+     * Frame-update-Routine
+     * @param deltaT 
+     */
     @Override
     protected void update(float deltaT) {
         

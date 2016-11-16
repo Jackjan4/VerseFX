@@ -1,17 +1,27 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.janroslan.versefx.io;
 
 import javafx.scene.input.KeyCode;
 
 /**
- *
+ * Abstrahiert den Zugriff auf Eingaben für andere Klasse
+ * Implementation: InputManager
  * @author Jackjan
  */
 public interface Input {
     
+    
+    /**
+     * Gibt zurück, ob die angegebene Taste gedrückt ist.
+     * @param key - KeyCode der jeweiligen Taste
+     * @return 
+     */
     public boolean IsKeyDown(KeyCode key);
+    
+    
+    /**
+     * Gibt zurück, ob die angegebene Taste losgelassen ist.
+     * @param key - KeyCode der jeweiligen Taste
+     * @return 
+     */
+    public boolean IsKeyUp(KeyCode key);
 }

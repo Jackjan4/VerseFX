@@ -1,11 +1,8 @@
-/*
- * Copyright 2016, Jan-Philipp Roslan, Alle Rechte vorbehalten
- */
 package de.janroslan.versefx.base;
 
 
 /**
- *
+ * Zeitstempel für eine Position eines Objektes zu einer gegebenen Zeit
  * @author Jackjan
  */
 public class TimeStamp
@@ -56,6 +53,8 @@ public class TimeStamp
     }
     
     
+    
+    // Getter & Setter
 
     public double getX() {
         return x;

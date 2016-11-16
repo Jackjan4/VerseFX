@@ -12,7 +12,6 @@ import de.timetoerror.jputils.collections.OverflowStack;
 import java.util.ArrayList;
 import javafx.scene.Node;
 import javafx.scene.transform.Rotate;
-import org.dyn4j.dynamics.Body;
 
 /**
  *
@@ -20,7 +19,9 @@ import org.dyn4j.dynamics.Body;
  */
 public abstract class BasicNode implements Timeable, Updateable, Collidable {
 
+    // Zeitspeicher
     private OverflowStack<TimeStamp> timeBuffer;
+
     private boolean reverse;
 
     // The time in millis which should be reversed
@@ -36,6 +37,7 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
     // An Axis Aligned BoundingBox
     protected BoundingBox box;
 
+    // Einzigartiger Name des Objekts
     protected String tag;
 
     public BasicNode(String tag, Node node, int time) {
@@ -43,10 +45,11 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
         if (time > 0) {
             timeBuffer = new OverflowStack<>(time);
         }
-        
-        
+
         this.node = node;
         box = new BoundingBox(getX(), getY(), getZ(), getWidth(), getHeight(), getDepth());
+
+        setActive(true);
     }
 
     protected void setNode(Node node) {
@@ -78,7 +81,7 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
     }
 
     public final void setX(double val) {
-        getNode().setTranslateX(val - (getNode().getBoundsInLocal().getWidth() - getWidth()) / 2);
+        getNode().setTranslateX(val - (getNode().getBoundsInLocal().getWidth() - getWidth()) / 2.0);
         box.setX(val);
     }
 
@@ -88,12 +91,12 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
     }
 
     public final void setZ(double val) {
-        getNode().setTranslateZ(val - (getNode().getBoundsInLocal().getDepth() - getDepth()) / 2);
+        getNode().setTranslateZ(val - (getNode().getBoundsInLocal().getDepth() - getDepth()) / 2.0);
         box.setZ(val);
     }
 
     public final double getX() {
-        return getNode().getTranslateX() + (getNode().getBoundsInLocal().getWidth()) - getWidth() / 2.0;
+        return getNode().getTranslateX() + (getNode().getBoundsInLocal().getWidth() - getWidth()) / 2.0;
     }
 
     public final double getY() {
@@ -117,7 +120,10 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
 
         if (!reverse) {
             if (timeBuffer != null) {
-                timeBuffer.add(new TimeStamp(getX(), getY(), getZ(), getRotation()));
+                TimeStamp stamp = new TimeStamp(getX(), getY(), getZ(), getRotation());
+                if (!stamp.equals(timeBuffer.peek())) {
+                    timeBuffer.add(stamp);
+                }
             }
             update(deltaT);
         } else if (!timeBuffer.isEmpty()) {
@@ -141,6 +147,17 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
     @Override
     public final BoundingBox getBounds() {
         return box;
+    }
+
+    public void setActive(boolean val) {
+        getNode().setVisible(val);
+        getNode().setDisable(!val);
+        box.setActive(val);
+    }
+
+    @Override
+    public final boolean isActive() {
+        return !getNode().isDisable();
     }
 
     @Override
@@ -187,11 +204,11 @@ public abstract class BasicNode implements Timeable, Updateable, Collidable {
     }
 
     public final void moveColX(double val) {
-        man.addToColQueue(this, new BoundingBox(getNode().getTranslateX() + val + (getNode().getBoundsInLocal().getWidth() - getWidth()) / 2,getY(),getZ(),getWidth(),getHeight(),getDepth()));
+        man.addToColQueue(this, val,0,0);
     }
 
     public final void moveColY(double val) {
-        man.addToColQueue(this, new BoundingBox(getX(),getNode().getTranslateY() +val + (getNode().getBoundsInLocal().getHeight() - getHeight()) / 2,getZ(),getWidth(),getHeight(),getDepth()));
+        man.addToColQueue(this, 0,val,0);
     }
 
     public final void moveY(double val) {

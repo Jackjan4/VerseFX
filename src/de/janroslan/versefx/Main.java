@@ -1,12 +1,7 @@
-/*
- * Copyright 2016, Jan-Philipp Roslan, Alle Rechte vorbehalten
- */
 package de.janroslan.versefx;
 
 import de.janroslan.versefx.io.InputManager;
 import de.janroslan.versefx.base.FXGame;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.input.KeyEvent;
@@ -14,61 +9,64 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
+ * Einstiegspunkt für die JVM
  *
  * @author Jackjan
  */
 public class Main extends Application {
-    
 
+    /**
+     * JVM Einstieg (JavaFX)
+     *
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage) {
 
+        // Initialisieren des Spiels
         FXGame game = new Game();
         game.init(primaryStage);
         game.loadContent();
-        
+
+        // Initialisieren des InputManager für Nutzeringaben
         InputManager input = new InputManager();
         input.init();
 
-        // Key down event register
+        // Drücken einer Tastaturtaste registrieren
         primaryStage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             input.registerKeyDown(event.getCode());
         });
-        
-        // Key Up event registr
+
+        // Loslassen einer Tastaturtaste registrieren
         primaryStage.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
             input.registerKeyUp(event.getCode());
         });
-        
-        // Mouse press event register
+
+        // Drücken einer Maustaste registrieren
         primaryStage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             input.registerMousePress(event.getButton());
         });
-        
-        // Mouse release event register
+
+        // Loslassen einer Maustaste registrieren
         primaryStage.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
             input.registerMouseRelease(event.getButton());
         });
-        
-        // Mouse pos register
+
+        // Registrieren der Mausposition
         primaryStage.addEventFilter(MouseEvent.MOUSE_MOVED, event -> {
-            input.registerMousePos(event.getX(),event.getY());
+            input.registerMousePos(event.getX(), event.getY());
         });
-        
-        // The timer for the main game loop
-        AnimationTimer timer = new AnimationTimer()
-        {
+
+        // Definiton der Frame-Update-Routine
+        AnimationTimer timer = new AnimationTimer() {
+            // Zeitstempel
             private long last = 0;
-            private long lastSystem = 0;
-            
+
             @Override
             public void handle(long now) {
-                game.update((float)((now - last) / 1000_000.0));
-                //System.out.println("FPS: " + 1000 / ((now - last) / 1000_000.0));
-                long nowSystem = System.currentTimeMillis();
-                //System.out.println("FPS on System: " + (1000.0 / (nowSystem - lastSystem)));
-                
-                lastSystem = nowSystem;
+
+                // Aufrufen der Updateroutine des Spiels mit Angabe der Delta-Zeit
+                game.update((float) ((now - last) / 1000_000.0));
                 last = now;
             }
         };
@@ -79,13 +77,14 @@ public class Main extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
-        // Debug printings
+
+        // Debug-ausgaben
         System.out.println("Graphic pipeline: " + com.sun.prism.GraphicsPipeline.getPipeline().getClass().getName());
         System.out.println("java.version : " + System.getProperty("java.version"));
         System.out.println("sun.arch.data.model : " + System.getProperty("sun.arch.data.model"));
         System.out.println("os.arch : " + System.getProperty("os.arch"));
-        
+
+        // JavaFX starten
         launch(args);
     }
 
